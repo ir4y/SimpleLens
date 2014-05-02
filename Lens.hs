@@ -1,4 +1,5 @@
 import Test.HUnit
+-- based on http://www.haskellforall.com/2012/01/haskell-for-mainstream-programmers_28.html
 
 -- cabal instll HUnit
 -- rm -f *.o && rm -f Lens && rm -f *.tix && ghc -fhpc Lens.hs && ./Lens && hpc markup lens
