@@ -1,8 +1,9 @@
 import Test.HUnit
+import Data.List
 -- based on http://www.haskellforall.com/2012/01/haskell-for-mainstream-programmers_28.html
 
 -- cabal instll HUnit
--- rm -f *.o && rm -f Lens && rm -f *.tix && ghc -fhpc Lens.hs && ./Lens && hpc markup lens
+-- rm -f *.o && rm -f Lens && rm -f *.tix && ghc -fhpc Lens.hs && ./Lens && hpc markup Lens
 -- view coverage in Main.hs.html
 
 
@@ -85,6 +86,13 @@ radius' = (getR, setR)
 points' :: Lens Surface [Point]
 points' = (getPoints, setPoints)
 
+--lens for list
+posSet :: Int -> a -> [a] -> [a]
+posSet i n xs = let (a,_:b) = splitAt i xs in a ++ [n] ++ b
+
+at' :: Int -> Lens [a] a
+at' i = (\xs -> xs !! i, posSet i)
+
 -- get value from object of type 'a' via lens 'l'
 (^.) :: a -> Lens a b -> b
 a ^. l  = getL l a
@@ -122,6 +130,8 @@ test_points'_lens = TestCase (do { assertEqual "points' getter" ((Surface [(Poin
 test_composition = TestCase (do { assertEqual "get x' from Circle center'" ((Circle (Point 1.0 2.0) 3.0) ^. (center' <.> x')) 1.0
                                 ; assertEqual "set x' of Circle center'" (((center' <.> x') ^= 10.0) (Circle (Point 1.0 2.0) 3.0)) (Circle (Point 10.0 2.0) 3.0)
                                 ; assertEqual "increase x' of Circle center'" (((center' <.> x') %= (+10.0)) (Circle (Point 1.0 2.0) 3.0)) (Circle (Point 11.0 2.0) 3.0)
+                                ; assertEqual "get y' of second Surface point" ((Surface [(Point 0.0 0.0), (Point 1.0 2.0)]) ^. (points' <.>  (at' 1) <.> y')) 2.0
+                                ; assertEqual "set y' of second Surface point" (((points' <.>  (at' 1) <.> y') ^= 10.0) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 0.0 0.0), (Point 1.0 10.0)])
                                 })
 
 
