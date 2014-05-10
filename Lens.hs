@@ -40,6 +40,15 @@ setR :: Double -> Circle -> Circle
 setR r' c = c {radius = r'}
 
 
+data Surface = Surface { points :: [Point] }
+    deriving (Show, Eq)
+
+getPoints :: Surface -> [Point]
+getPoints = points
+
+setPoints :: [Point] -> Surface -> Surface
+setPoints ps s = s { points = ps }
+
 -- Lens type
 type Lens a b = ( a -> b , b -> a -> a )
 
@@ -73,6 +82,9 @@ center' = (getCenter, setCenter)
 radius' :: Lens Circle Double
 radius' = (getR, setR)
 
+points' :: Lens Surface [Point]
+points' = (getPoints, setPoints)
+
 -- get value from object of type 'a' via lens 'l'
 (^.) :: a -> Lens a b -> b
 a ^. l  = getL l a
@@ -103,6 +115,10 @@ test_radius'_lens = TestCase (do { assertEqual "radius' getter" ((Circle (Point 
                                  ; assertEqual "radius' setter" ((radius' ^= 10.0) (Circle (Point 1.0 2.0) 3.0)) (Circle (Point 1.0 2.0) 10.0)
                                  })
 
+test_points'_lens = TestCase (do { assertEqual "points' getter" ((Surface [(Point 1.0 2.0), (Point 3.0 4.0)]) ^. points') [(Point 1.0 2.0), (Point 3.0 4.0)]
+                                 ; assertEqual "points' setter" ((points' ^= [(Point 0.0 0.0)]) (Surface [(Point 1.0 2.0), (Point 3.0 4.0)]))  (Surface [(Point 0.0 0.0)])
+                                 })
+                                   
 test_composition = TestCase (do { assertEqual "get x' from Circle center'" ((Circle (Point 1.0 2.0) 3.0) ^. (center' <.> x')) 1.0
                                 ; assertEqual "set x' of Circle center'" (((center' <.> x') ^= 10.0) (Circle (Point 1.0 2.0) 3.0)) (Circle (Point 10.0 2.0) 3.0)
                                 ; assertEqual "increase x' of Circle center'" (((center' <.> x') %= (+10.0)) (Circle (Point 1.0 2.0) 3.0)) (Circle (Point 11.0 2.0) 3.0)
@@ -113,6 +129,7 @@ tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
                  , TestLabel "Test center' lens" test_center'_lens
                  , TestLabel "Test radius' lens" test_radius'_lens
+                 , TestLabel "Test points' lens" test_points'_lens
                  , TestLabel "Test composion" test_composition
                  ]
 
