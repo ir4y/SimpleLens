@@ -139,7 +139,6 @@ test_composition = TestCase (do { assertEqual "get x' from Circle center'" ((Cir
 
 test_traversed = TestCase (do { assertEqual "get traversed x' over points'" ((Surface [(Point 0.0 0.0), (Point 1.0 2.0)]) ^. (points' `traversed` x')) [0.0, 1.0]
                               ; assertEqual "set traversed x' over points'" (((points' `traversed` x') ^= [9, 9]) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 9.0 0.0), (Point 9.0 2.0)])
-
                               ; assertEqual "increase traversed x' over points'" (((points' `traversed` x') %= ((<*>) [(+1)])) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 1.0 0.0), (Point 2.0 2.0)])
                               })
 
