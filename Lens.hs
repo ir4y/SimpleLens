@@ -2,11 +2,9 @@ import Control.Applicative
 import Data.List
 import Test.HUnit
 -- based on http://www.haskellforall.com/2012/01/haskell-for-mainstream-programmers_28.html
-
 -- cabal instll HUnit
 -- rm -f *.o && rm -f Lens && rm -f *.tix && ghc -fhpc Lens.hs && ./Lens && hpc markup Lens
 -- view coverage in Main.hs.html
-
 
 -- Point data type
 data Point  = Point  { x :: Double, y :: Double }
@@ -23,7 +21,6 @@ getY = y
 
 setY :: Double -> Point -> Point
 setY y'' p = p { y = y'' }
-
 
 -- Circle datatype
 data Circle = Circle { center :: Point, radius :: Double }
@@ -63,7 +60,6 @@ setL (_, s) = s
 -- I consider modL more fundamental than setL
 modL :: Lens a b -> (b -> b) -> a -> a
 modL l f a = setL l (f (getL l a)) a
-
 
 -- Lens combination operator
 (<.>):: Lens a b -> Lens b c -> Lens a c
@@ -117,7 +113,6 @@ a ^. l  = getL l a
 (%=) :: Lens a b -> (b -> b) -> a -> a
 (l %= f) a = modL l f a
 
-
 -- Tests 
 test_x'_lens = TestCase (do { assertEqual "x' getter" ((Point 1.0 2.0) ^. x') 1.0
                             ; assertEqual "x' setter" ((x' ^= 10) (Point 1.0 2.0)) (Point 10.0 2.0)
@@ -159,8 +154,6 @@ test_filtered = TestCase (
                    ; assertEqual "set filtered x' over points'" (((points' `x_eq_0` x') ^= [9, 9]) s) (Surface [(Point 9.0 0.0), (Point 1.0 2.0), (Point 9.0 9.0), (Point 5.0 5.0)])
                    ; assertEqual "increase filtered x' over points'" (((points' `x_eq_0` x') %= ((<*>) [(+1)])) s) (Surface [(Point 1.0 0.0), (Point 1.0 2.0), (Point 1.0 9.0), (Point 5.0 5.0)])
                               })
-
-
 
 tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
