@@ -1,5 +1,6 @@
-import Test.HUnit
+import Control.Applicative
 import Data.List
+import Test.HUnit
 -- based on http://www.haskellforall.com/2012/01/haskell-for-mainstream-programmers_28.html
 
 -- cabal instll HUnit
@@ -40,7 +41,6 @@ getR = radius
 setR :: Double -> Circle -> Circle
 setR r' c = c {radius = r'}
 
-
 data Surface = Surface { points :: [Point] }
     deriving (Show, Eq)
 
@@ -69,6 +69,9 @@ modL l f a = setL l (f (getL l a)) a
 (<.>):: Lens a b -> Lens b c -> Lens a c
 (getA, setA) <.> (getB, setB) = (getB . getA, \z x -> setA (setB z (getA x)) x)
 
+
+traversed :: Lens a [b] -> Lens b c -> Lens a [c]
+traversed (getA, setA) (getB, setB) = (\a -> map getB $ getA a, \ns a -> setA (map (uncurry setB) (zip ns (getA a))) a)
 
 -- define lenses
 x' :: Lens Point Double
@@ -134,6 +137,12 @@ test_composition = TestCase (do { assertEqual "get x' from Circle center'" ((Cir
                                 ; assertEqual "set y' of second Surface point" (((points' <.>  (at' 1) <.> y') ^= 10.0) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 0.0 0.0), (Point 1.0 10.0)])
                                 })
 
+test_traversed = TestCase (do { assertEqual "get traversed x' over points'" ((Surface [(Point 0.0 0.0), (Point 1.0 2.0)]) ^. (points' `traversed` x')) [0.0, 1.0]
+                              ; assertEqual "set traversed x' over points'" (((points' `traversed` x') ^= [9, 9]) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 9.0 0.0), (Point 9.0 2.0)])
+
+                              ; assertEqual "increase traversed x' over points'" (((points' `traversed` x') %= ((<*>) [(+1)])) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 1.0 0.0), (Point 2.0 2.0)])
+                              })
+
 
 tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
@@ -141,6 +150,7 @@ tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test radius' lens" test_radius'_lens
                  , TestLabel "Test points' lens" test_points'_lens
                  , TestLabel "Test composion" test_composition
+                 , TestLabel "Test traversed" test_traversed
                  ]
 
 main = runTestTT tests
