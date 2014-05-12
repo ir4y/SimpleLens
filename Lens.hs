@@ -69,9 +69,18 @@ modL l f a = setL l (f (getL l a)) a
 (<.>):: Lens a b -> Lens b c -> Lens a c
 (getA, setA) <.> (getB, setB) = (getB . getA, \z x -> setA (setB z (getA x)) x)
 
-
 traversed :: Lens a [b] -> Lens b c -> Lens a [c]
 traversed (getA, setA) (getB, setB) = (\a -> map getB $ getA a, \ns a -> setA (map (uncurry setB) (zip ns (getA a))) a)
+
+filtred :: (b -> Bool) -> Lens a [b] -> Lens b c -> Lens a [c]
+filtred pred (getA, setA) (getB, setB) = (\a -> map getB $ filter pred $ getA a, \vs a -> setA (map (uncurry setB) (zip (get_val pred (getA a) (map getB $ getA a) vs []) (getA a))) a)
+
+get_val :: (a -> Bool) -> [a] -> [b] -> [b] -> [b] -> [b]
+get_val    pred           [ ]    [ ]    [ ]    acc =  reverse acc
+get_val    pred           (x:xs) (d:ds) [ ]    acc =  get_val pred xs ds [] (d:acc)
+get_val    pred           (x:xs) (d:ds) (v:vs) acc
+    | pred x     = get_val pred xs ds vs (v:acc)
+    | otherwise  = get_val pred xs ds (v:vs) (d:acc)
 
 -- define lenses
 x' :: Lens Point Double
@@ -142,6 +151,16 @@ test_traversed = TestCase (do { assertEqual "get traversed x' over points'" ((Su
                               ; assertEqual "increase traversed x' over points'" (((points' `traversed` x') %= ((<*>) [(+1)])) (Surface [(Point 0.0 0.0), (Point 1.0 2.0)])) (Surface [(Point 1.0 0.0), (Point 2.0 2.0)])
                               })
 
+test_filtered = TestCase (
+                let x_eq_0 = filtred (\p -> p^.x' == 0.0)
+                    s = (Surface [(Point 0.0 0.0), (Point 1.0 2.0), (Point 0.0 9.0), (Point 5.0 5.0)])
+                in
+                do { assertEqual "get filtered x' over points'" (s ^. (points' `x_eq_0` x')) [0.0, 0.0]
+                   ; assertEqual "set filtered x' over points'" (((points' `x_eq_0` x') ^= [9, 9]) s) (Surface [(Point 9.0 0.0), (Point 1.0 2.0), (Point 9.0 9.0), (Point 5.0 5.0)])
+                   ; assertEqual "increase filtered x' over points'" (((points' `x_eq_0` x') %= ((<*>) [(+1)])) s) (Surface [(Point 1.0 0.0), (Point 1.0 2.0), (Point 1.0 9.0), (Point 5.0 5.0)])
+                              })
+
+
 
 tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
@@ -150,6 +169,7 @@ tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test points' lens" test_points'_lens
                  , TestLabel "Test composion" test_composition
                  , TestLabel "Test traversed" test_traversed
+                 , TestLabel "Test filtered" test_filtered
                  ]
 
 main = runTestTT tests
