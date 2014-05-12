@@ -153,7 +153,7 @@ test_filtered = TestCase (
                 do { assertEqual "get filtered x' over points'" (s ^. (points' `x_eq_0` x')) [0.0, 0.0]
                    ; assertEqual "set filtered x' over points'" (((points' `x_eq_0` x') ^= [9, 9]) s) (Surface [(Point 9.0 0.0), (Point 1.0 2.0), (Point 9.0 9.0), (Point 5.0 5.0)])
                    ; assertEqual "increase filtered x' over points'" (((points' `x_eq_0` x') %= ((<*>) [(+1)])) s) (Surface [(Point 1.0 0.0), (Point 1.0 2.0), (Point 1.0 9.0), (Point 5.0 5.0)])
-                              })
+                   })
 
 tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
