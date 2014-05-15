@@ -3,7 +3,7 @@
 
 name:                SimpleLens
 version:             0.0.1
-synopsis:            Simple implementation of functional lens in haskell (no monads, no functors and other complicated stuff), based on https://gist.github.com/ir4y/7a602ca24bd6fe96de2d
+synopsis:            Simple implementation of functional lens in haskell (no monads, no functors and other complicated stuff)
 -- description:         
 license:             MIT
 license-file:        LICENSE
@@ -17,4 +17,11 @@ cabal-version:       >=1.8
 library
   exposed-modules:     SimpleLens
   -- other-modules:       
-  build-depends:       base ==4.6.*, HUnit ==1.2.*
+  build-depends:       base ==4.6.*
+  hs-source-dirs: src
+
+Test-Suite test
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  build-depends: base ==4.6.*, HUnit ==1.2.*
+  hs-source-dirs: tests src
