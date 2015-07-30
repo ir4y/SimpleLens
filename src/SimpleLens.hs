@@ -112,3 +112,16 @@ a ^. l  = getL l a
 -- map value from object of type 'a' with function 'f' via lens 'l'
 (%=) :: Lens a b -> (b -> b) -> a -> a
 (l %= f) a = modL l f a
+
+-- cursor
+-- cursor is a pair of lens and data
+type Cursor a b = (a, b)
+
+cGet :: Cursor a (Lens a b) -> b
+cGet (d, l) = d ^. l
+
+cSet :: Cursor a (Lens a b) -> b -> a
+cSet (d, l) v = (l ^= v) d
+
+(|>>) :: Cursor a (Lens a b) -> Lens b c -> Cursor a (Lens a c)
+(d, l1) |>> l2 = (d, l1 <.> l2)

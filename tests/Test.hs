@@ -44,6 +44,17 @@ test_filtered = TestCase (
                    ; assertEqual "increase filtered x' over points'" (((points' `x_eq_0` x') %= ((<*>) [(+1)])) s) (Surface [(Point 1.0 0.0), (Point 1.0 2.0), (Point 1.0 9.0), (Point 5.0 5.0)])
                    })
 
+test_cursors = TestCase(
+              let item = Circle (Point 1.0 2.0) 3.0
+                  cursor_c = (item, center')
+              in
+              do { assertEqual "get center by cursor" (cGet cursor_c) (Point 1.0 2.0)
+                 ; assertEqual "set center by cursor" (cSet cursor_c (Point 9.0 9.0)) (Circle (Point 9.0 9.0) 3.0)
+                 ; assertEqual "get x of center by lens and cursor composition" (cGet (cursor_c |>> x')) 1.0
+                 ; assertEqual "set x of center by lens and cursor composition" (cSet (cursor_c |>> x') 9.0) (Circle (Point 9.0 2.0) 3.0)
+                 })
+
+
 tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test y' lens" test_y'_lens
                  , TestLabel "Test center' lens" test_center'_lens
@@ -52,6 +63,7 @@ tests = TestList [ TestLabel "Test x' lens" test_x'_lens
                  , TestLabel "Test composion" test_composition
                  , TestLabel "Test traversed" test_traversed
                  , TestLabel "Test filtered" test_filtered
+                 , TestLabel "Test cursors" test_cursors
                  ]
 
 main = runTestTT tests

@@ -16,12 +16,12 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     SimpleLens
-  -- other-modules:       
-  build-depends:       base ==4.6.*
+  build-depends:       base ==4.8.*
   hs-source-dirs: src
 
 Test-Suite test
   type: exitcode-stdio-1.0
   main-is: Test.hs
-  build-depends: base ==4.6.*, HUnit ==1.2.*
+  other-modules: SimpleLens
+  build-depends: base ==4.8.*, HUnit ==1.2.*
   hs-source-dirs: tests src
